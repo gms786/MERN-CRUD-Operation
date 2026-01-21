@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Button, Table, Image, Modal, Form, Select, Input, message, Spin } from "antd";
 import { DeleteFilled, EditFilled, PlusOutlined } from "@ant-design/icons";
-import axios from "axios";
+import api from "./api/axios";
 import useSwr, { mutate } from "swr";
-axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 
 const App = () => {
   const [regform] = Form.useForm();
@@ -80,7 +79,7 @@ const App = () => {
 
   const fetcher = async (url) => {
     try {
-      const res = await axios.get(url);
+      const res = await api.get(url);
       return res.data;
     } catch (error) {
       console.error('API Error:', error);
@@ -155,7 +154,7 @@ const App = () => {
 
   const onDelete = async (id) => {
     try {
-      await axios.delete(`/api/${id}`);
+      await api.delete(`/api/${id}`);
       message.success('Record Deleted Successfully');
       mutate('/api');
     } catch(error) {
@@ -174,7 +173,7 @@ const App = () => {
   const onFinish = async (values) => {
     imgURL ? values.profile = imgURL : values.profile = dummyProfile;
     try {
-      await axios.post('/api', values);
+      await api.post('/api', values);
       setModal(false);
       regform.resetFields();
       setImgURL(null);
@@ -193,7 +192,7 @@ const App = () => {
   const onUpdate = async (values) => {
     imgURL ? values.profile = imgURL : delete values.profile;
     try {
-      await axios.put(`/api/${id}`, values);
+      await api.put(`/api/${id}`, values);
       setModal(false);
       regform.resetFields();
       setImgURL(null);

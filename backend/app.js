@@ -11,14 +11,25 @@ const router = require('./routes/route');
 // ======= Security & Performance =======
 
 // Allow only frontend URL
-const corsOptions = {
-  origin: process.env.CLIENT_URL,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+const allowedOrigins = [
+  process.env.CLIENT_URL,   // separate frontend (Vercel/Netlify/local)  // e.g. https://your-frontend.vercel.app
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow same-origin, Postman, server-to-server
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
-};
+}));
 
 // App Level Middleware
-app.use(cors(corsOptions));
 // app.use(helmet()); // Security headers
 
 // Rate limiting
@@ -37,6 +48,8 @@ app.use(express.urlencoded({ extended: true }));
 // app.use(express.json({ limit: '1mb' }));
 // app.use(express.urlencoded({ extended: true }));
 
+app.use('/api', router);
+
 //Static Files
 app.use(express.static('public'));
 
@@ -44,14 +57,21 @@ app.use(express.static('public'));
 // =================================================
 const path = require('path');
 
-app.use(express.static(path.join(__dirname, 'dist')));
+// app.use(express.static(path.join(__dirname, 'dist')));
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-});
+// // React Router support
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+// });
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'dist')));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  });
+}
 // =================================================
-
-app.use('/api', router);
 
 // Health check (IMPORTANT)
 // app.get('/health', (req, res) => {
