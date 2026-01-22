@@ -227,44 +227,52 @@ const onClose = () => {
 }
 
   return (
-    <div className='min-h-screen bg-rose-100 flex flex-col items-center md:p-4'>
-      <div className='flex justify-between items-center bg-blue-600 w-10/12 my-5 p-4'>
-        <h1 className='capitalize font-bold text-white text-2xl md:text-5xl '>MERN CRUD Operation</h1>
-        <Button
-          shape="circle"
-          size="large"
-          className="!bg-green-400 !text-white"
-          type="text"
-          icon={<PlusOutlined />}
-          onClick={() => setModal(true)}
+    <div className="min-h-screen bg-rose-100 flex flex-col items-center px-1 sm:px-2 md:px-4">
+      {/* COMMON WIDTH CONTAINER */}
+      <div className="w-full sm:w-full md:w-11/12 lg:w-10/12">
+
+        {/* Header */}
+        <div className="flex justify-between items-center bg-blue-600 my-3 sm:my-5 p-3 sm:p-4 rounded-sm ">
+          <h1 className="capitalize font-bold text-white text-lg sm:text-xl md:text-5xl">
+            MERN CRUD Operation
+          </h1>
+
+          <Button
+            shape="circle"
+            size="large"
+            className="!bg-green-400 !text-white"
+            icon={<PlusOutlined />}
+            onClick={() => setModal(true)}
+          />
+        </div>
+
+        {/* Table */}
+        <Table
+          columns={columns}
+          dataSource={dataSource}
+          pagination={{ pageSize: 5, placement: ['bottomCenter'] }}
+          scroll={{ x: 'max-content' }}
         />
       </div>
-
-      <Table
-        className="w-10/12"
-        columns={columns}
-        dataSource={dataSource}
-        pagination={{ pageSize: 5, placement: ['bottomCenter'] }}
-        scroll={{ x: 'max-content' }}
-      />
 
       <Modal
         open={modal}
         onCancel={onClose}
         footer={null}
+        width="95%"
+        style={{ maxWidth: 720 }}
         title={
-          <h1 className="text-center font-bold text-2xl">
+          <h1 className="text-center font-bold text-xl sm:text-2xl">
             {id ? 'Update Form' : 'Registration Form'}
           </h1>
         }
-        width={720}
       >
         <Form layout="vertical"
           onFinish={id ? onUpdate : onFinish}
           form={regform}
           className="font-semibold"
         >
-          <div className="mt-5 grid md:grid-cols-2 gap-x-2">
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
             <Form.Item
               label="Profile"
               name="profile"
@@ -273,36 +281,36 @@ const onClose = () => {
                 onChange={(e) => handleImage(e)}
                 type="file"
                 className="!p-0 file:bg-gray-200 file:border-0 file:cursor-pointer file:px-4 file:h-[39.6px] file:mr-4 hover:file:bg-gray-300"
-                style={{ borderRadius: 0 }}
+              
               />
             </Form.Item>
             <Form.Item
-              label="FullName"
+              label="Name"
               name="fullname"
               rules={[{ required: true, message: 'Please input your full name!' }]}
             >
-              <Input size="large" style={{ borderRadius: 0 }} />
+              <Input size="large" />
             </Form.Item>
             <Form.Item
               label="Email"
               name="email"
               rules={[{ required: true, message: 'Please input your email!' }]}
             >
-              <Input size="large" type="email" style={{ borderRadius: 0 }} />
+              <Input size="large" type="email" />
             </Form.Item>
             <Form.Item
               label="Mobile"
               name="mobile"
               rules={[{ required: true, message: 'Please input your mobile number!' }]}
             >
-              <Input size="large" style={{ borderRadius: 0 }} />
+              <Input size="large" />
             </Form.Item>
             <Form.Item
               label="DOB"
               name="dob"
               rules={[{ required: true, message: 'Please input your date of birth!' }]}
             >
-              <Input size="large" type="date" style={{ borderRadius: 0 }} />
+              <Input size="large" type="date" />
             </Form.Item>
             <Form.Item
               label="Gender"
@@ -312,8 +320,6 @@ const onClose = () => {
               <Select
                 size="large"
                 placeholder="Select Gender"
-                style={{ borderRadius: 0 }}
-                classNames={{ popup: '!rounded-none' }}
               >
                 <Select.Option value="Male">Male</Select.Option>
                 <Select.Option value="Female">Female</Select.Option>
@@ -327,7 +333,7 @@ const onClose = () => {
             name="address"
             rules={[{ required: true, message: 'Please input your address!' }]}
           >
-            <Input.TextArea size="large" rows={2} style={{ borderRadius: 0 }} >
+            <Input.TextArea size="large" rows={2} >
             </Input.TextArea>
           </Form.Item>
           <Form.Item>
@@ -338,7 +344,6 @@ const onClose = () => {
                 htmlType="submit"
                 className="w-full font-semibold !bg-rose-600 !text-white"
                 size="large"
-                style={{ borderRadius: 0 }}
                 icon={<PlusOutlined />}
               >
                 Update Now
@@ -349,7 +354,6 @@ const onClose = () => {
               htmlType="submit"
               className="w-full font-semibold !bg-blue-600 !text-white"
               size="large"
-              style={{ borderRadius: 0 }}
               icon={<PlusOutlined />}
             >
               Register Now
