@@ -59,59 +59,17 @@ app.use('/api', router);
 
 /* ========= Static Build Files | React dist ========= */
 // Serve frontend build
-// if (process.env.NODE_ENV === 'production') {
-//   const distPath = path.join(__dirname, '../frontend/dist');
-
-//   app.use(express.static(distPath));
-
-  // Express 5 safe catch-all
-//   app.use((req, res, next) => {
-//     if (req.originalUrl.startsWith('/api')) {
-//       return next();
-//     }
-//     res.sendFile(path.join(distPath, 'index.html'));
-//   });
-// }
-
 if (process.env.NODE_ENV === 'production') {
   const distPath = path.join(__dirname, '../frontend/dist');
+
   app.use(express.static(distPath));
 
-  // Serve React SPA or 404 if file doesn't exist
-  app.get('*', (req, res, next) => {
-    if (req.originalUrl.startsWith('/api')) return next(); // API 404 will handle
-
-    const filePath = path.join(distPath, req.path);
-    res.sendFile(filePath, err => {
-      if (err) {
-        // File does not exist → show 404
-        res.status(404).send(`
-          <div style="
-              min-height:100vh;
-              display:flex;
-              flex-direction:column;
-              align-items:center;
-              justify-content:center;
-              background:#f8fafc;
-              font-family:Arial, sans-serif;
-              text-align:center;
-          ">
-              <h1 style="font-size:64px; margin:0; color:#ef4444;">404</h1>
-              <h2 style="margin:10px 0; color:#111827;">Page Not Found</h2>
-              <p style="color:#6b7280;">The page you are trying to access does not exist.</p>
-              <a href="/" style="
-              margin-top:20px;
-              padding:10px 22px;
-              background:#2563eb;
-              color:#fff;
-              text-decoration:none;
-              border-radius:6px;
-              font-weight:600;
-              ">Go Home</a>
-          </div>
-        `);
-      }
-    });
+  // Express 5 safe catch-all
+  app.use((req, res, next) => {
+    if (req.originalUrl.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(path.join(distPath, 'index.html'));
   });
 }
 
