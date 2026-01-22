@@ -1,35 +1,21 @@
-require('dotenv').config();
-const express = require('express');
+import dotenv from 'dotenv';
+dotenv.config();
+
+import express from 'express';
 const app = express();
-const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const router = require('./routes/route');
+import router from './routes/route.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// ======= Security & Performance =======
-
-// Allow only frontend URL
-const allowedOrigins = [
-  process.env.CLIENT_URL,   // separate frontend (Vercel/Netlify/local)  // e.g. https://your-frontend.vercel.app
-];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    // allow same-origin, Postman, server-to-server
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
-    return callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true
-}));
-
-// App Level Middleware
+// Security & Performance
+/* ========= Middleware ========= */
 // app.use(helmet()); // Security headers
 
 // Rate limiting
@@ -41,47 +27,62 @@ app.use(cors({
 
 // app.use('/api', limiter);
 
+// app.use(express.json({ limit: '1mb' }));
+// app.use(express.urlencoded({ extended: true }));
+
 // Body Parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// app.use(express.json({ limit: '1mb' }));
-// app.use(express.urlencoded({ extended: true }));
+/* ========= CORS ========= */
+// Allow only frontend URL (Separate frontend: Vercel/Netlify/local, e.g. https://your-frontend.vercel.app)
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+];
 
+app.use(cors({
+  origin: (origin, callback) => {
+    // allow same-origin, Postman, server-to-server
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    callback(null, false);
+    // return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true
+}));
+
+/* ========= API ========= */
 app.use('/api', router);
 
-//Static Files
-app.use(express.static('public'));
 
-// Static Build
-// =================================================
-const path = require('path');
-
-// app.use(express.static(path.join(__dirname, 'dist')));
-
-// // React Router support
-// app.get('*', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-// });
-
+/* ========= Static Build Files | React dist ========= */
+// Serve frontend build
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'dist')));
+  const distPath = path.join(__dirname, '../frontend/dist');
 
+  app.use(express.static(distPath));
+
+  // Express 5 safe catch-all
   app.use((req, res, next) => {
-    if (req.path.startsWith('/api')) return next();
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+    if (req.originalUrl.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(path.join(distPath, 'index.html'));
   });
 }
-// =================================================
+
+/* ========= Dev Root ========= */
+if (process.env.NODE_ENV !== 'production') {
+  app.get('/', (req, res) => {
+    res.send('API is running...');
+  });
+}
 
 // Health check (IMPORTANT)
 // app.get('/health', (req, res) => {
 //   res.status(200).json({ status: 'OK', uptime: process.uptime() });
 // });
-
-app.get('/', (req, res) => {
-    res.send('Welcome to the API');
-});
 
 // 404 Handler
 app.use((req, res) => {
@@ -121,7 +122,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-const PORT = process.env.PORT;
+/* ========= Server ========= */
+const PORT = process.env.PORT || 3000;
 
 const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

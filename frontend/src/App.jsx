@@ -10,7 +10,10 @@ const App = () => {
   const [imgURL, setImgURL] = useState(null);
   const [id, setId] = useState(null);
   const [disabled, setDisabled] = useState(false);
+  const [serverDown, setServerDown] = useState(false);
+
   const dummyProfile = "https://www.clipartmax.com/png/full/144-1442578_flat-person-icon-download-dummy-man.png";
+
   const columns = [
     {
       title: 'Profile',
@@ -80,6 +83,12 @@ const App = () => {
   const fetcher = async (url) => {
     try {
       const res = await api.get(url);
+
+      if (typeof res.data === 'string') {
+        // throw new Error('Received HTML instead of JSON');
+        setServerDown(true);
+      }
+
       return res.data;
     } catch (error) {
       console.error('API Error:', error);
@@ -87,20 +96,21 @@ const App = () => {
     }
   };
 
-  
-  const { data, error, isLoading } = useSwr('/api', fetcher);
+
+  // const { data, error, isLoading } = useSwr('/', fetcher);
+  const { data, error, isLoading } = useSwr('/', fetcher, {shouldRetryOnError: false});
 
   /*
-  const { data, error, isLoading } = useSwr('/api', fetcher, {
+  const { data, error, isLoading } = useSwr('/', fetcher, {
     shouldRetryOnError: false
   });
 
-  const { data, error, isLoading } = useSwr('/api', fetcher, {
+  const { data, error, isLoading } = useSwr('/', fetcher, {
     errorRetryCount: 1,        // retry only once
     errorRetryInterval: 5000   // after 5 seconds
   });
 
-  const { data, error, isLoading } = useSwr('/api', fetcher, {
+  const { data, error, isLoading } = useSwr('/', fetcher, {
     shouldRetryOnError: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false
@@ -118,7 +128,7 @@ const App = () => {
     );
   }
 
-  if (error) {
+  if (serverDown || error) {
     return (
       <div className="min-h-screen flex items-center justify-center text-red-600 text-lg font-semibold">
         🚫 Server is down. Please try again later.
@@ -154,9 +164,9 @@ const App = () => {
 
   const onDelete = async (id) => {
     try {
-      await api.delete(`/api/${id}`);
+      await api.delete(`/${id}`);
       message.success('Record Deleted Successfully');
-      mutate('/api');
+      mutate('/');
     } catch(error) {
       console.log(error);
       message.error('Unable to delete data!');
@@ -173,11 +183,11 @@ const App = () => {
   const onFinish = async (values) => {
     imgURL ? values.profile = imgURL : values.profile = dummyProfile;
     try {
-      await api.post('/api', values);
+      await api.post('/', values);
       setModal(false);
       regform.resetFields();
       setImgURL(null);
-      mutate('/api');
+      mutate('/');
       message.success('Registration Successful');
     }
     catch(error) {
@@ -192,12 +202,12 @@ const App = () => {
   const onUpdate = async (values) => {
     imgURL ? values.profile = imgURL : delete values.profile;
     try {
-      await api.put(`/api/${id}`, values);
+      await api.put(`/${id}`, values);
       setModal(false);
       regform.resetFields();
       setImgURL(null);
       setId(null);
-      mutate('/api');
+      mutate('/');
       message.success('Successfully Updated');
     }
     catch(error) {
