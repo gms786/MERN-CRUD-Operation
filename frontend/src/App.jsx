@@ -203,7 +203,7 @@ const App = () => {
 
     try {
       setSubmitting(true);
-      await api.put(`api/${id}`, values);
+      await api.put(`/api/${id}`, values);
 
       setModal(false);
       form.resetFields();
@@ -242,7 +242,7 @@ const App = () => {
 
   const onDelete = async (id) => {
     try {
-      await api.delete(`/${id}`);
+      await api.delete(`/api/${id}`);
       message.success('Record Deleted Successfully');
       mutate('/api');
     } catch(error) {
