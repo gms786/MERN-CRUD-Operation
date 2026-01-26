@@ -39,6 +39,7 @@ app.use(express.urlencoded({ extended: true }));
 // Allow only frontend URL (Separate frontend: Vercel/Netlify/local, e.g. https://your-frontend.vercel.app)
 const allowedOrigins = [
   process.env.CLIENT_URL,
+  process.env.LOCALHOST_URL,
 ];
 
 app.use(cors({
