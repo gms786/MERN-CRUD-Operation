@@ -179,12 +179,12 @@ const App = () => {
 
     try {
       setSubmitting(true); // 🔒 disable button
-      await api.post('/', values);
+      await api.post('/api', values);
 
       setModal(false);
       form.resetFields();
       setImgURL(null);
-      mutate('/');
+      mutate('/api');
       message.success('Registration Successful');
     } catch (error) {
       if (error?.response?.data?.error?.code === 11000) {
@@ -203,13 +203,13 @@ const App = () => {
 
     try {
       setSubmitting(true);
-      await api.put(`/${id}`, values);
+      await api.put(`api/${id}`, values);
 
       setModal(false);
       form.resetFields();
       setImgURL(null);
       setId(null);
-      mutate('/');
+      mutate('/api');
       message.success('Successfully Updated');
     } catch (error) {
       if (error?.response?.data?.error?.code === 11000) {
@@ -244,7 +244,7 @@ const App = () => {
     try {
       await api.delete(`/${id}`);
       message.success('Record Deleted Successfully');
-      mutate('/');
+      mutate('/api');
     } catch(error) {
       console.log(error);
       message.error('Unable to delete data!');
