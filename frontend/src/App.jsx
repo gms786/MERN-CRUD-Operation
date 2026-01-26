@@ -10,7 +10,7 @@ const App = () => {
   const [id, setId] = useState(null);
   const [imgURL, setImgURL] = useState(null);
   const [serverDown, setServerDown] = useState(false);
-  const [disabled, setDisabled] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   // console.log("Code360 | API: ", import.meta.env.VITE_API_URL);
 
@@ -143,6 +143,9 @@ const App = () => {
       title: 'Action',
       key: 'action',
       dataIndex: 'action',
+      // width: 100,
+      // fixed: 'right',    // freeze column
+      // align: 'center',   // centers title + cell content
       render: (_,obj) => (
         <div>
           <Button
@@ -172,45 +175,54 @@ const App = () => {
   ]
   
   const onSubmit = async (values) => {
-    // imgURL ? values.profile = imgURL : values.profile = dummyProfile;
-    values.profile = imgURL || ""; // Send empty string if removed
+    values.profile = imgURL || "";
 
     try {
+      setSubmitting(true); // 🔒 disable button
       await api.post('/', values);
+
       setModal(false);
       form.resetFields();
       setImgURL(null);
       mutate('/');
       message.success('Registration Successful');
-    } catch(error) {
-      if(error.response.data.error.code === 11000) {
+    } catch (error) {
+      if (error?.response?.data?.error?.code === 11000) {
         message.error('Email already exists!');
-        return form.setFields([{ name: 'email', errors: ['Email already exists'] }]);
+        form.setFields([{ name: 'email', errors: ['Email already exists'] }]);
+      } else {
+        message.error('Unable to insert data!');
       }
-      message.error('Unable to insert data!');
+    } finally {
+      setSubmitting(false); // 🔓 enable button
     }
-  }
+  };
 
   const onUpdate = async (values) => {
-    // imgURL ? values.profile = imgURL : delete values.profile;
-    values.profile = imgURL || ""; // Send empty string if removed
+    values.profile = imgURL || "";
 
     try {
+      setSubmitting(true);
       await api.put(`/${id}`, values);
+
       setModal(false);
       form.resetFields();
       setImgURL(null);
       setId(null);
       mutate('/');
       message.success('Successfully Updated');
-    } catch(error) {
+    } catch (error) {
       if (error?.response?.data?.error?.code === 11000) {
         message.error('Email already exists!');
-        return form.setFields([{ name: 'email', errors: ['Email already exists'] }]);
+        form.setFields([{ name: 'email', errors: ['Email already exists'] }]);
+      } else {
+        message.error('Unable to update data!');
       }
-      message.error('Unable to update data!');
+    } finally {
+      setSubmitting(false);
     }
-  }
+  };
+
 
   const onEdit = (obj) => {
     setModal(true);
@@ -417,28 +429,29 @@ const App = () => {
           </Form.Item>
           
           <Form.Item>
-            {
-              id ?
+            {id ? (
               <Button
-                disabled={disabled}
                 htmlType="submit"
-                className="w-full font-semibold !bg-rose-600 !text-white"
                 size="large"
-                icon={<PlusOutlined />}
+                loading={submitting}
+                disabled={submitting}
+                className="w-full font-semibold !bg-rose-600 !text-white"
+                icon={!submitting && <PlusOutlined />}
               >
-                Update Now
+                {!submitting ? "Update Now" : "Updating..."}
               </Button>
-              :
+            ) : (
               <Button
-              disabled={disabled}
-              htmlType="submit"
-              className="w-full font-semibold !bg-blue-600 !text-white"
-              size="large"
-              icon={<PlusOutlined />}
-            >
-              Register Now
+                htmlType="submit"
+                size="large"
+                loading={submitting}
+                disabled={submitting}
+                className="w-full font-semibold !bg-blue-600 !text-white"
+                icon={!submitting && <PlusOutlined />}
+              >
+                {!submitting ? "Register Now" : "Submitting..."}
               </Button>
-            }
+            )}
           </Form.Item>
         </Form>
       </Modal>
