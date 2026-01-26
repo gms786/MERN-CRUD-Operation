@@ -40,7 +40,7 @@ app.use(express.urlencoded({ extended: true }));
 const allowedOrigins = [
   process.env.CLIENT_URL,
   process.env.LOCALHOST_URL,
-];
+].filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -48,15 +48,14 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    callback(null, false);
-    // return callback(new Error('Not allowed by CORS'));
+    // return callback(null, false);
+    return callback(new Error("Not allowed by CORS"));
   },
   credentials: true
 }));
 
 /* ========= API ========= */
 app.use('/api', router);
-
 
 /* ========= Static Build Files | React dist ========= */
 // Serve frontend build
