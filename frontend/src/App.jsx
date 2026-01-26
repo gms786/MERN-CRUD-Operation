@@ -41,20 +41,20 @@ const App = () => {
   };
 
 
-  // const { data, error, isLoading } = useSwr('/', fetcher);
-  const { data, error, isLoading } = useSwr('/', fetcher, {shouldRetryOnError: false});
+  // const { data, error, isLoading } = useSwr('/api', fetcher);
+  const { data, error, isLoading } = useSwr('/api', fetcher, {shouldRetryOnError: false});
 
   /*
-  const { data, error, isLoading } = useSwr('/', fetcher, {
+  const { data, error, isLoading } = useSwr('/api', fetcher, {
     shouldRetryOnError: false
   });
 
-  const { data, error, isLoading } = useSwr('/', fetcher, {
+  const { data, error, isLoading } = useSwr('/api', fetcher, {
     errorRetryCount: 1,        // retry only once
     errorRetryInterval: 5000   // after 5 seconds
   });
 
-  const { data, error, isLoading } = useSwr('/', fetcher, {
+  const { data, error, isLoading } = useSwr('/api', fetcher, {
     shouldRetryOnError: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false
